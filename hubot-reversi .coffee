@@ -43,6 +43,25 @@ module.exports = (robot) ->
     msg.send outputTurn(turn) + "からスタートです。"
 
 
+  robot.hear /navico set(\s[ABCDEFGH]{1}[12345678]{1})/i, (msg) ->
+    bordArray = robot.brain.get("ba")
+    turn = robot.brain.get("turn")
+
+    point = msg.match[1]
+    x = parseInt(point[2], 10) - 1
+    y = parseInt(point[1], 16) - 10
+
+    list = []
+    bordArray = updateBord(bordArray, list, x, y, turn)
+    turn = changeTurn(turn)
+
+    robot.brain.set("ba", bordArray)
+    robot.brain.set("turn", turn)
+
+    msg.send outputBord(bordArray)
+    msg.send "次は、" + outputTurn(turn) + "のターンです。"
+
+
 outputBord = (ba) ->
   retmsg = "....A.B..C.D..E..F..G.H\n" +
       "１#{ba[0][0]}#{ba[0][1]}#{ba[0][2]}#{ba[0][3]}#{ba[0][4]}#{ba[0][5]}#{ba[0][6]}#{ba[0][7]}\n" +
@@ -57,3 +76,18 @@ outputBord = (ba) ->
 
 outputTurn = (turn) ->
   if turn == "black" then "黒" else "白"
+
+
+updateBord = (ba, lists, x, y, turn) ->
+  stone = if turn == "black" then "●" else "○"
+
+  ba[x][y] = stone
+
+  for list in lists
+    ba[list[1]][list[0]] = stone
+
+  return ba
+
+
+changeTurn = (turn) ->
+  if turn == "black" then "white" else "black"
