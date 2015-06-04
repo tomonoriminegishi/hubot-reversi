@@ -25,17 +25,16 @@ module.exports = (robot) ->
     bordArray = [
       ["□", "□", "□", "□", "□", "□", "□", "□"],
       ["□", "□", "□", "□", "□", "□", "□", "□"],
-      ["□", "□", "□", "□", "○", "□", "□", "□"],
-      ["□", "□", "□", "●", "○", "●", "□", "□"],
+      ["□", "□", "□", "□", "□", "□", "□", "□"],
+      ["□", "□", "□", "○", "●", "□", "□", "□"],
       ["□", "□", "□", "●", "○", "□", "□", "□"],
-      ["□", "□", "□", "●", "○", "□", "□", "□"],
+      ["□", "□", "□", "□", "□", "□", "□", "□"],
       ["□", "□", "□", "□", "□", "□", "□", "□"],
       ["□", "□", "□", "□", "□", "□", "□", "□"]
     ]
 
     turn = "black"
 
-    # brainを初期化
     robot.brain.set("ba", bordArray)
     robot.brain.set("turn", turn)
 
@@ -75,6 +74,11 @@ module.exports = (robot) ->
     robot.brain.set("ba", bordArray)
     robot.brain.set("turn", turn)
 
+    if checkGameEnd(bordArray)
+      msg.send outputBord(bordArray)
+      msg.send outputEnding(bordArray)
+      return
+
     msg.send outputBord(bordArray)
     msg.send "次は、" + outputTurn(turn) + "のターンです。"
 
@@ -95,6 +99,10 @@ outputTurn = (turn) ->
   if turn == "black" then "黒" else "白"
 
 
+outputEnding = (ba) ->
+  retmsg = "ゲームが終了しました。お疲れ様でした。"
+
+
 updateBord = (ba, lists, x, y, turn) ->
   stone = if turn == "black" then "●" else "○"
 
@@ -112,6 +120,15 @@ changeTurn = (turn) ->
 
 checkPosition = (ba, x, y) ->
   isEmpty = if ba[x][y] == "□" then true else false
+
+
+checkGameEnd = (ba) ->
+  isEnd = true
+  for x in [0..7]
+    for y in [0..7]
+      if ba[x][y] == "□"
+        isEnd = false
+        break
 
 
 checkShita = (ba, list, x, y, turn) ->
